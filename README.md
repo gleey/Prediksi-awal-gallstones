@@ -33,7 +33,7 @@ Output Layer : 1 neuron (aktivasi: Sigmoid)
 ## Struktur File
 
 ```
-JST/
+Prediksi-awal-gallstones/
 ├── dataset-gal.csv   # Dataset gallstone (319 sampel, 39 kolom)
 ├── data_loader.py    # Memuat CSV, seleksi fitur, normalisasi, split data
 ├── ann_model.py      # Implementasi ANN (forward, backward, training)
