@@ -1,2 +1,6 @@
 # Python
 __pycache__/
+
+# Model
+model.json
+normalization_params.json
