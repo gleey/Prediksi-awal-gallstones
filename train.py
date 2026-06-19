@@ -5,10 +5,11 @@ Penggunaan:
     python train.py
 
 Akan melatih model, memilih epoch terbaik (dari rentang 50-100),
-dan menyimpan hasil evaluasi.
+menyimpan model ke file, dan menampilkan hasil evaluasi.
 """
 import os
 import sys
+import json
 
 from data_loader import prepare_dataset
 from ann_model import ANN
@@ -19,7 +20,10 @@ def main():
     # ============================================================
     #  Konfigurasi
     # ============================================================
-    DATASET_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset-gal.csv")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATASET_PATH = os.path.join(BASE_DIR, "dataset-gal.csv")
+    MODEL_PATH = os.path.join(BASE_DIR, "model.json")
+    NORM_PARAMS_PATH = os.path.join(BASE_DIR, "normalization_params.json")
     EPOCHS = 100          # Jumlah epoch training (maksimum)
     EPOCH_MIN = 50        # Epoch minimum untuk pencarian terbaik
     EPOCH_MAX = 100       # Epoch maksimum untuk pencarian terbaik
@@ -174,12 +178,34 @@ def main():
             bar = "#" * min(bar_len, 50)
             print(f"  Epoch {epoch:>4}: {loss:.4f} |{bar}")
 
+    # ============================================================
+    #  9. Simpan Model dan Parameter Normalisasi
+    # ============================================================
+    print(f"\n[9] MENYIMPAN MODEL")
+    print("-" * 40)
+
+    # Simpan model ANN (bobot & arsitektur)
+    model.save_to_file(MODEL_PATH)
+    print(f"  Model tersimpan   : {MODEL_PATH}")
+
+    # Simpan parameter normalisasi (mins, maxs) agar predict.py bisa normalize input baru
+    norm_params = {
+        'mins': mins,
+        'maxs': maxs
+    }
+    with open(NORM_PARAMS_PATH, 'w', encoding='utf-8') as f:
+        json.dump(norm_params, f, indent=2)
+    print(f"  Normalisasi param : {NORM_PARAMS_PATH}")
+
     print("\n" + "=" * 65)
     print("  TRAINING SELESAI!")
     print(f"  Epoch terbaik: {model.best_epoch}")
     print(f"  Akurasi testing pada epoch terbaik: {acc * 100:.2f}%")
+    print(f"  Model dan parameter normalisasi telah disimpan.")
+    print(f"  Jalankan 'python predict.py' untuk prediksi tanpa training ulang.")
     print("=" * 65)
 
 
 if __name__ == "__main__":
     main()
+

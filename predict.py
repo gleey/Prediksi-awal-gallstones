@@ -4,6 +4,10 @@ Script untuk melakukan prediksi penyakit gallstone secara interaktif.
 Penggunaan:
     python predict.py
 
+CATATAN: Jalankan 'python train.py' terlebih dahulu untuk melatih
+dan menyimpan model. Script ini langsung memuat model yang sudah
+ditraining tanpa perlu melatih ulang.
+
 User akan diminta memasukkan 4 fitur penting pasien:
   1. Vitamin D
   2. C-Reactive Protein (CRP)
@@ -12,40 +16,36 @@ User akan diminta memasukkan 4 fitur penting pasien:
 """
 import os
 import sys
+import json
 
-from data_loader import prepare_dataset, SELECTED_FEATURES
+from data_loader import SELECTED_FEATURES
 from ann_model import ANN
 
 
-def create_trained_model(dataset_path):
+def load_trained_model(model_path, norm_params_path):
     """
-    Melatih model dan mengembalikan model beserta parameter normalisasi.
+    Memuat model ANN dan parameter normalisasi dari file yang sudah disimpan.
+
+    Args:
+        model_path: Path ke file model.json
+        norm_params_path: Path ke file normalization_params.json
+
+    Returns:
+        model: Instance ANN dengan bobot yang sudah dimuat
+        mins: List nilai minimum tiap fitur (untuk normalisasi)
+        maxs: List nilai maksimum tiap fitur (untuk normalisasi)
     """
-    print("Melatih model terlebih dahulu...")
-    X_train, y_train, X_test, y_test, header, mins, maxs, feat_idx = prepare_dataset(
-        dataset_path, test_ratio=0.2
-    )
+    # Muat model ANN
+    model = ANN.load_from_file(model_path)
 
-    n_features = len(X_train[0])
-    model = ANN(
-        n_input=n_features,
-        n_hidden1=8,
-        n_hidden2=4,
-        learning_rate=0.01
-    )
+    # Muat parameter normalisasi
+    with open(norm_params_path, 'r', encoding='utf-8') as f:
+        norm_params = json.load(f)
 
-    model.train(
-        X_train, y_train,
-        epochs=100,
-        verbose=False,
-        X_val=X_test,
-        y_val=y_test,
-        select_best_epoch=True,
-        epoch_range=(50, 100)
-    )
+    mins = norm_params['mins']
+    maxs = norm_params['maxs']
 
-    print(f"Model selesai ditraining (epoch terbaik: {model.best_epoch}).\n")
-    return model, header, mins, maxs, feat_idx
+    return model, mins, maxs
 
 
 def normalize_input(raw_values, mins, maxs):
@@ -123,14 +123,28 @@ def get_patient_input():
 
 
 def main():
-    DATASET_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset-gal.csv")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_PATH = os.path.join(BASE_DIR, "model.json")
+    NORM_PARAMS_PATH = os.path.join(BASE_DIR, "normalization_params.json")
 
-    if not os.path.exists(DATASET_PATH):
-        print(f"ERROR: File dataset tidak ditemukan: {DATASET_PATH}")
+    # Cek apakah file model sudah ada
+    if not os.path.exists(MODEL_PATH) or not os.path.exists(NORM_PARAMS_PATH):
+        print("=" * 65)
+        print("  ERROR: Model belum ditraining!")
+        print("=" * 65)
+        if not os.path.exists(MODEL_PATH):
+            print(f"  File tidak ditemukan: {MODEL_PATH}")
+        if not os.path.exists(NORM_PARAMS_PATH):
+            print(f"  File tidak ditemukan: {NORM_PARAMS_PATH}")
+        print(f"\n  Silakan jalankan 'python train.py' terlebih dahulu")
+        print(f"  untuk melatih dan menyimpan model.")
+        print("=" * 65)
         sys.exit(1)
 
-    # Latih model
-    model, header, mins, maxs, feat_idx = create_trained_model(DATASET_PATH)
+    # Muat model yang sudah ditraining (tanpa perlu training ulang)
+    print("Memuat model yang sudah ditraining...")
+    model, mins, maxs = load_trained_model(MODEL_PATH, NORM_PARAMS_PATH)
+    print(f"Model berhasil dimuat (epoch terbaik: {model.best_epoch}).\n")
 
     print("=" * 65)
     print("   PREDIKSI PENYAKIT GALLSTONE - INPUT DATA PASIEN")

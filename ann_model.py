@@ -294,6 +294,77 @@ class ANN:
             probabilities.append(prob)
         return predictions, probabilities
 
+    def save_to_file(self, filepath):
+        """
+        Menyimpan model (bobot, bias, arsitektur) ke file JSON.
+
+        Args:
+            filepath: Path file JSON tujuan penyimpanan.
+        """
+        import json
+        model_data = {
+            'architecture': {
+                'n_input': self.n_input,
+                'n_hidden1': self.n_hidden1,
+                'n_hidden2': self.n_hidden2,
+                'learning_rate': self.lr
+            },
+            'weights': {
+                'weights_ih1': self.weights_ih1,
+                'bias_h1': self.bias_h1,
+                'weights_h1h2': self.weights_h1h2,
+                'bias_h2': self.bias_h2,
+                'weights_ho': self.weights_ho,
+                'bias_o': self.bias_o
+            },
+            'training_info': {
+                'best_epoch': getattr(self, 'best_epoch', None),
+                'best_val_acc': getattr(self, 'best_val_acc', None)
+            }
+        }
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(model_data, f, indent=2)
+
+    @classmethod
+    def load_from_file(cls, filepath):
+        """
+        Memuat model dari file JSON yang sudah disimpan.
+
+        Args:
+            filepath: Path file JSON model.
+
+        Returns:
+            Instance ANN dengan bobot yang sudah dimuat.
+        """
+        import json
+        with open(filepath, 'r', encoding='utf-8') as f:
+            model_data = json.load(f)
+
+        arch = model_data['architecture']
+        # Buat instance baru tanpa random init yang akan di-overwrite
+        model = cls(
+            n_input=arch['n_input'],
+            n_hidden1=arch['n_hidden1'],
+            n_hidden2=arch['n_hidden2'],
+            learning_rate=arch['learning_rate']
+        )
+
+        # Muat bobot dari file
+        w = model_data['weights']
+        model.weights_ih1 = w['weights_ih1']
+        model.bias_h1 = w['bias_h1']
+        model.weights_h1h2 = w['weights_h1h2']
+        model.bias_h2 = w['bias_h2']
+        model.weights_ho = w['weights_ho']
+        model.bias_o = w['bias_o']
+
+        # Muat info training
+        info = model_data.get('training_info', {})
+        model.best_epoch = info.get('best_epoch')
+        model.best_val_acc = info.get('best_val_acc')
+
+        return model
+
     def get_architecture_info(self):
         """Mengembalikan informasi arsitektur model."""
         total_params = (
