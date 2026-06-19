@@ -102,4 +102,5 @@ Sistem akan memberikan hasil prediksi berupa status risiko gallstone beserta tin
 
 ## Sumber Dataset
 
-Esen, I., Arslan, H., Aktürk, S., Gülşen, M., Kültekin, N., & Özdemir, O. (2024). Gallstone [Dataset] [archive.ics.uci.edu/dataset/1150/gallstone-1] (archive.ics.uci.edu/dataset/1150/gallstone-1). UCI Machine Learning Repository. [https://doi.org/10.1097/md.0000000000037258](https://doi.org/10.1097/md.0000000000037258)
+Esen, I., Arslan, H., Aktürk, S., Gülşen, M., Kültekin, N., & Özdemir, O. (2024). Gallstone [Dataset]. [archive.ics.uci.edu/dataset/1150/gallstone-1] (archive.ics.uci.edu/dataset/1150/gallstone-1)
+UCI Machine Learning Repository. [https://doi.org/10.1097/md.0000000000037258](https://doi.org/10.1097/md.0000000000037258)
