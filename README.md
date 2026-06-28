@@ -45,7 +45,6 @@ Prediksi-awal-gallstones/
 ├── ann_model.py               # Implementasi ANN (forward, backward, save/load)
 ├── metrics.py                 # Evaluasi model (confusion matrix, precision, recall, F1)
 ├── train.py                   # Script training model & pencarian epoch terbaik
-├── predict.py                 # Script prediksi interaktif di terminal (konsol)
 ├── predict_gui.py             # GUI Desktop (Tkinter) native dengan pemuatan sampel acak
 └── README.md                  # Dokumentasi proyek
 ```
