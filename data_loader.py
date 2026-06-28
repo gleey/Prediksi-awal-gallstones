@@ -8,14 +8,37 @@ Hanya menggunakan 4 fitur penting berdasarkan penelitian:
 """
 import csv
 import random
+import os
 
 # Fitur penting yang digunakan (nama kolom di CSV)
-SELECTED_FEATURES = [
-    "Vitamin D",
-    "C-Reactive Protein (CRP)",
-    "Total Body Water (TBW)",
-    "Lean Mass (LM) (%)"
-]
+def _get_all_features():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(base_dir, "dataset-gal.csv")
+    if os.path.exists(csv_path):
+        try:
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                header = next(reader)
+                return [col.strip() for col in header if col.strip() != "Gallstone Status"]
+        except Exception:
+            pass
+    # Fallback jika file tidak ada
+    return [
+        "Age", "Gender", "Comorbidity", "Coronary Artery Disease (CAD)", "Hypothyroidism",
+        "Hyperlipidemia", "Diabetes Mellitus (DM)", "Height", "Weight", "Body Mass Index (BMI)",
+        "Total Body Water (TBW)", "Extracellular Water (ECW)", "Intracellular Water (ICW)",
+        "Extracellular Fluid/Total Body Water (ECF/TBW)", "Total Body Fat Ratio (TBFR) (%)",
+        "Lean Mass (LM) (%)", "Body Protein Content (Protein) (%) ", "Visceral Fat Rating (VFR)",
+        "Bone Mass (BM)", "Muscle Mass (MM)", "Obesity (%)", "Total Fat Content (TFC)",
+        "Visceral Fat Area (VFA)", "Visceral Muscle Area (VMA) (Kg)", "Hepatic Fat Accumulation (HFA)",
+        "Glucose", "Total Cholesterol (TC)", "Low Density Lipoprotein (LDL)", "High Density Lipoprotein (HDL)",
+        "Triglyceride", "Aspartat Aminotransferaz (AST)", "Alanin Aminotransferaz (ALT)",
+        "Alkaline Phosphatase (ALP)", "Creatinine", "Glomerular Filtration Rate (GFR)",
+        "C-Reactive Protein (CRP)", "Hemoglobin (HGB)", "Vitamin D"
+    ]
+
+SELECTED_FEATURES = _get_all_features()
+
 
 
 def load_csv(filepath):
@@ -36,9 +59,11 @@ def load_csv(filepath):
 def get_selected_indices(header):
     """Mendapatkan indeks kolom untuk fitur yang dipilih."""
     indices = []
+    cleaned_header = [col.strip() for col in header]
     for feat_name in SELECTED_FEATURES:
-        for i, col_name in enumerate(header):
-            if feat_name == col_name:
+        feat_clean = feat_name.strip()
+        for i, col_name in enumerate(cleaned_header):
+            if feat_clean == col_name:
                 indices.append(i)
                 break
         else:
