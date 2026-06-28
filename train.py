@@ -28,8 +28,8 @@ def main():
     EPOCH_MIN = 50        # Epoch minimum untuk pencarian terbaik
     EPOCH_MAX = 100       # Epoch maksimum untuk pencarian terbaik
     LEARNING_RATE = 0.01  # Learning rate
-    HIDDEN1 = 8           # Neuron hidden layer 1
-    HIDDEN2 = 4           # Neuron hidden layer 2
+    HIDDEN1 = 16          # Neuron hidden layer 1
+    HIDDEN2 = 8           # Neuron hidden layer 2
     TEST_RATIO = 0.2      # Proporsi data testing (20%)
 
     print("=" * 65)
