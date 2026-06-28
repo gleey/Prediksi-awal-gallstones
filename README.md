@@ -6,99 +6,108 @@ Implementasi **Artificial Neural Network (ANN)** / Jaringan Saraf Tiruan untuk p
 
 Proyek ini membangun model klasifikasi biner untuk memprediksi apakah seorang pasien berisiko terkena penyakit gallstone berdasarkan data klinis. Model ANN diimplementasikan dari nol (*from scratch*) menggunakan Python standar.
 
-Berdasarkan penelitian, sistem ini menggunakan **4 fitur penting** yang paling berpengaruh dalam prediksi gallstone:
+Sistem ini menggunakan **38 fitur/parameter klinis lengkap** dari dataset untuk mendapatkan hasil klasifikasi yang komprehensif.
 
-| No | Fitur | Satuan | Keterangan |
-|----|-------|--------|------------|
-| 1 | Vitamin D | ng/mL | Kadar vitamin D dalam darah |
-| 2 | C-Reactive Protein (CRP) | mg/L | Penanda inflamasi dalam darah |
-| 3 | Total Body Water (TBW) | Liter | Total cairan tubuh |
-| 4 | Lean Mass (LM) | % | Persentase massa tubuh tanpa lemak |
+### Kategori Fitur (38 Fitur)
+
+1. **Demografi & Pemeriksaan Umum**:
+   - Umur (Age), Jenis Kelamin (Gender), Komorbiditas (Comorbidity), Penyakit Jantung Koroner (CAD), Hipotiroidisme, Hiperlipidemia, Diabetes Mellitus (DM), Tinggi Badan, Berat Badan, BMI, Tingkat Obesitas.
+2. **Komposisi Cairan & Lemak Tubuh**:
+   - Total Body Water (TBW), Extracellular Water (ECW), Intracellular Water (ICW), Rasio ECF/TBW, Rasio Lemak Tubuh (TBFR), Lean Mass (LM), Kandungan Protein Tubuh, Visceral Fat Rating (VFR), Massa Tulang, Massa Otot, Total Fat Content, Visceral Fat Area (VFA), Visceral Muscle Area (VMA), Hepatic Fat Accumulation (HFA).
+3. **Uji Laboratorium & Darah**:
+   - Gula Darah (Glucose), Kolesterol Total (TC), LDL, HDL, Trigliserida, Enzim AST, Enzim ALT, Enzim ALP, Kreatinin, GFR, C-Reactive Protein (CRP), Hemoglobin (HGB), Vitamin D.
+
+---
 
 ## Arsitektur Model
 
 ```
-Input Layer  : 4 neuron (fitur)
-Hidden Layer 1 : 8 neuron (aktivasi: ReLU)
-Hidden Layer 2 : 4 neuron (aktivasi: ReLU)
-Output Layer : 1 neuron (aktivasi: Sigmoid)
+Input Layer     : 38 neuron (fitur)
+Hidden Layer 1  : 16 neuron (aktivasi: ReLU)
+Hidden Layer 2  : 8 neuron (aktivasi: ReLU)
+Output Layer    : 1 neuron (aktivasi: Sigmoid)
 ```
 
 - **Loss Function**: Binary Cross-Entropy
 - **Optimizer**: Gradient Descent
 - **Inisialisasi Bobot**: He Initialization
 - **Normalisasi**: Min-Max Scaling
-- **Pemilihan Epoch**: Epoch terbaik dipilih dari rentang 50-100 berdasarkan akurasi validasi
+- **Pemilihan Epoch**: Epoch terbaik dipilih dari rentang 50-100 berdasarkan akurasi validasi tertinggi
+
+---
 
 ## Struktur File
 
 ```
 Prediksi-awal-gallstones/
-├── dataset-gal.csv   # Dataset gallstone (319 sampel, 39 kolom)
-├── data_loader.py    # Memuat CSV, seleksi fitur, normalisasi, split data
-├── ann_model.py      # Implementasi ANN (forward, backward, training)
-├── metrics.py        # Metrik evaluasi (confusion matrix, precision, recall, F1)
-├── train.py          # Script utama untuk training dan evaluasi model
-├── predict.py        # Script prediksi interaktif untuk data pasien baru
-└── README.md
+├── dataset-gal.csv            # Dataset gallstone (319 sampel, 39 kolom)
+├── data_loader.py             # Memuat CSV, normalisasi, dan split data train/test
+├── ann_model.py               # Implementasi ANN (forward, backward, save/load)
+├── metrics.py                 # Evaluasi model (confusion matrix, precision, recall, F1)
+├── train.py                   # Script training model & pencarian epoch terbaik
+├── predict.py                 # Script prediksi interaktif di terminal (konsol)
+├── predict_gui.py             # GUI Desktop (Tkinter) native dengan pemuatan sampel acak
+└── README.md                  # Dokumentasi proyek
 ```
+
+---
 
 ## Cara Menjalankan
 
 ### Prasyarat
 
-- Python 3.x (tanpa library tambahan)
+- Python 3.x (tanpa memerlukan instalasi library ML eksternal seperti TensorFlow/Scikit-Learn)
 
-### Training Model
+### 1. Training Model
+
+Jalankan perintah berikut untuk melatih model ANN baru pada data training:
 
 ```bash
 python train.py
 ```
 
 Akan menampilkan:
-- Informasi dataset dan distribusi kelas
-- Arsitektur model ANN
-- Progress training per epoch (loss dan akurasi)
-- Pemilihan epoch terbaik (dari epoch 50-100)
-- Confusion matrix dan laporan klasifikasi
-- Riwayat akurasi validasi dan loss
+- Progress loss dan akurasi tiap epoch.
+- Grafik visual sederhana nilai akurasi testing pada epoch 50-100.
+- Confusion Matrix lengkap & Laporan Klasifikasi (Precision, Recall, F1-Score).
+- Penyimpanan model ke `model.json` dan parameter normalisasi desimal ke `normalization_params.json`.
 
-### Prediksi Interaktif
+### 2. Menjalankan GUI Desktop (Tkinter)
+
+Jalankan perintah berikut untuk membuka aplikasi desktop native (tanpa perlu web/localhost):
+
+```bash
+python predict_gui.py
+```
+
+**Fitur Unggulan GUI Desktop:**
+- **🎲 Muat Sampel Acak**: Klik tombol ini untuk otomatis memuat satu baris data pasien secara acak dari dataset. Semua 38 field input akan terisi otomatis, prediksi ANN dijalankan, dan Anda dapat melihat apakah hasil prediksi tersebut **Cocok (Benar/Salah)** dengan status aktual pasien dari dataset.
+- **🔬 Jalankan Prediksi**: Untuk menganalisis input data pasien baru yang dimasukkan secara manual.
+- **🔄 Kosongkan Form**: Mereset seluruh input field dan panel hasil.
+- **🛠️ Latih Model Baru**: Melatih ulang model langsung dari tombol di footer GUI, dilengkapi dengan jendela pemantauan log proses training.
+
+### 3. Prediksi Interaktif Terminal
+
+Jika Anda ingin melakukan prediksi secara interaktif satu per satu lewat baris perintah terminal:
 
 ```bash
 python predict.py
 ```
 
-User akan diminta memasukkan 4 nilai pemeriksaan pasien:
-1. Vitamin D (ng/mL)
-2. C-Reactive Protein / CRP (mg/L)
-3. Total Body Water / TBW (Liter)
-4. Lean Mass / LM (%)
+---
 
-Sistem akan memberikan hasil prediksi berupa status risiko gallstone beserta tingkat confidence.
+## Hasil Evaluasi Model Terbaik
 
-## Class Labels
-
-| Fitur | Nilai | Keterangan |
-|-------|-------|------------|
-| Gallstone Status | 0 | Yes (Positif) |
-| Gallstone Status | 1 | No (Negatif) |
-| Gender | 0 / 1 | Male / Female |
-| Comorbidity | 0-3 | Jumlah kondisi komorbid |
-| Coronary Artery Disease | 0 / 1 | No / Yes |
-| Hypothyroidism | 0 / 1 | No / Yes |
-| Hyperlipidemia | 0 / 1 | No / Yes |
-| Diabetes Mellitus | 0 / 1 | No / Yes |
-| Hepatic Fat Accumulation | 0-4 | Grade 0 (none) - Grade 4 (very severe) |
-
-## Hasil Evaluasi
+Berdasarkan pencarian epoch terbaik (Epoch 81):
 
 | Metrik | Nilai |
 |--------|-------|
-| Akurasi Testing | ~73% |
-| Akurasi Training | ~74% |
-| Total Parameter | 81 |
-| Epoch Terbaik | ~78 |
+| Akurasi Training | 80.78% |
+| Akurasi Testing | 71.88% |
+| Total Parameter | 769 |
+| Epoch Terbaik | 81 |
+
+---
 
 ## Sumber Dataset
 
