@@ -391,6 +391,7 @@ class GallstoneApp:
         self.match_val = tk.StringVar(value="-")
         self.match_lbl = ttk.Label(metrics_frame, textvariable=self.match_val, style="Card.TLabel", font=("Segoe UI", 10, "bold"))
         self.match_lbl.grid(row=3, column=1, sticky="e", pady=4)
+        self._hide_eval_rows()
         
         # Box Rekomendasi Klinis
         lbl_recom_title = ttk.Label(right_card, text="Panduan Klinis Sementara:", style="Card.TLabel", font=("Segoe UI", 10, "bold"))
@@ -478,6 +479,8 @@ class GallstoneApp:
                 widget.set("")
             else:
                 widget.delete(0, tk.END)
+
+        self._hide_eval_rows()
                 
         # Reset labels
         self.result_box.config(text="MENUNGGU INPUT", bg="#e2e8f0", fg=self.COLOR_MUTED)
@@ -541,13 +544,16 @@ class GallstoneApp:
             # Update label target aktual di UI
             self.actual_status_val.set("POSITIF (Berisiko)" if actual_class == 0 else "NEGATIF (Aman)")
             self.actual_status_lbl.config(foreground=self.COLOR_DANGER if actual_class == 0 else self.COLOR_SUCCESS)
+
+            # Tampilkan kolom evaluasi karena ada ground truth
+            self._show_eval_rows()
             
             # Jalankan prediksi otomatis setelah memuat sampel acak
             self.run_prediction(auto=True, actual_class=actual_class)
             
         except Exception as e:
             messagebox.showerror("Error", f"Gagal memuat baris data acak: {e}")
-
+    
     def run_prediction(self, auto=False, actual_class=None):
         """Membaca parameter klinis, melakukan normalisasi, dan memprediksi dengan ANN."""
         if not self.model:
@@ -616,11 +622,8 @@ class GallstoneApp:
                 self.match_val.set(match)
                 self.match_lbl.config(foreground=fg_match)
             else:
-                # Jika input diisi manual oleh user, kosongkan kolom status aktual
-                self.actual_status_val.set("Diisi Manual")
-                self.actual_status_lbl.config(foreground=self.COLOR_MUTED)
-                self.match_val.set("-")
-                self.match_lbl.config(foreground=self.COLOR_MUTED)
+                # Input manual: sembunyikan kolom evaluasi karena tidak ada label aktual
+                self._hide_eval_rows()
                 
             # Update teks panduan klinis
             self.recom_text.config(state="normal")
@@ -633,6 +636,17 @@ class GallstoneApp:
         except Exception as e:
             messagebox.showerror("Error", f"Terjadi kesalahan saat memproses prediksi: {e}")
 
+    def _show_eval_rows(self):
+        self.lbl_actual_title.grid()
+        self.actual_status_lbl.grid()
+        self.lbl_match_title.grid()
+        self.match_lbl.grid()
+
+    def _hide_eval_rows(self):
+        self.lbl_actual_title.grid_remove()
+        self.actual_status_lbl.grid_remove()
+        self.lbl_match_title.grid_remove()
+        self.match_lbl.grid_remove()
 
 def main():
     root = tk.Tk()

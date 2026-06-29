@@ -202,7 +202,7 @@ def main():
     print(f"  Epoch terbaik: {model.best_epoch}")
     print(f"  Akurasi testing pada epoch terbaik: {acc * 100:.2f}%")
     print(f"  Model dan parameter normalisasi telah disimpan.")
-    print(f"  Jalankan 'python predict.py' untuk prediksi tanpa training ulang.")
+    print(f"  Jalankan 'python predict_gui.py' untuk prediksi tanpa training ulang.")
     print("=" * 65)
 
 

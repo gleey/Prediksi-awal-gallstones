@@ -96,7 +96,6 @@ def classification_report(y_true, y_pred, class_names=None):
 
     acc = accuracy_score(y_true, y_pred)
     print(f"{'Akurasi':<25} {'':>10} {'':>10} {acc:>10.4f} {total_support:>10}")
-
     if total_support > 0:
         print(f"{'Weighted Avg':<25} {weighted_precision/total_support:>10.4f} "
               f"{weighted_recall/total_support:>10.4f} {weighted_f1/total_support:>10.4f} "
